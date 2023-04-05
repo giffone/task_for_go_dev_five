@@ -8,7 +8,9 @@ import (
 )
 
 type AppConf struct {
-	Route Route `json:"route"`
+	Route   Route   `json:"route"`
+	Storage Storage `json:"storage"`
+	Nb      Nb      `json:"nb"` // national bank
 }
 
 func New(path string) *AppConf {
@@ -31,6 +33,14 @@ func New(path string) *AppConf {
 	}
 
 	if c.Route.validate() != nil {
+		log.Fatalf("validate: %s", err.Error())
+	}
+
+	if c.Storage.validate() != nil {
+		log.Fatalf("validate: %s", err.Error())
+	}
+
+	if c.Nb.validate() != nil {
 		log.Fatalf("validate: %s", err.Error())
 	}
 

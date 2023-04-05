@@ -1,38 +1,21 @@
 package app
 
 import (
-	"fmt"
-	"nbrates/internal/config"
+	"nbrates/internal/api"
 
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
-type Router struct {
-	app  *fiber.App
-	addr string
-}
+func newRouter(h *api.Handlers) *fiber.App {
+	r := fiber.New()
 
-func New(conf *config.AppConf) *Router {
-	r := Router{
-		app:  fiber.New(),
-		addr: fmt.Sprintf("%s:%s", conf.Route.Host, conf.Route.Port),
-	}
-
-	r.app.Use("/swagger/*", swagger.HandlerDefault)
+	r.Use("/swagger/*", swagger.HandlerDefault)
 
 	// register endpoints
-	r.endpoints()
+	curr := r.Group("/currency")
+	curr.Get("/save/{date}", h.Save)
+	curr.Get("/{date}/{*code}", h.Get)
 
-	return &r
-}
-
-func (r *Router) endpoints() {
-	r.app.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World 👋!")
-	})
-}
-
-func (r *Router) Start() error {
-	return r.app.Listen(r.addr)
+	return r
 }
