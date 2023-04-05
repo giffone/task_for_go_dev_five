@@ -1,0 +1,15 @@
+{
+    "database": {
+        "db": "test",
+        "host": "localhost",
+        "port": "5432",
+        "username": "kursUser",
+        "password": "kursPswd"
+    },
+    "host": "localhost",
+    "port": "8080",
+    "nb": {
+        "ratesLink": "https://nationalbank.kz/rss/get_rates.cfm",
+        "timeout": "30"
+    }
+}
