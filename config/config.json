@@ -6,8 +6,10 @@
         "username": "kursUser",
         "password": "kursPswd"
     },
-    "host": "localhost",
-    "port": "8080",
+    "route": {
+        "host": "localhost",
+        "port": "8080"
+    },
     "nb": {
         "ratesLink": "https://nationalbank.kz/rss/get_rates.cfm",
         "timeout": "30"
