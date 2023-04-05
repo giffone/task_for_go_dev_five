@@ -11,7 +11,7 @@
         "port": "8080"
     },
     "nb": {
-        "ratesLink": "https://nationalbank.kz/rss/get_rates.cfm",
+        "link": "https://nationalbank.kz/rss/get_rates.cfm",
         "timeout": "30"
     }
 }

@@ -5,6 +5,7 @@ import (
 	"log"
 	"nbrates/internal/api"
 	"nbrates/internal/config"
+	"nbrates/internal/repository/client"
 	"nbrates/internal/service"
 
 	"nbrates/internal/repository/storage"
@@ -22,8 +23,10 @@ type App struct {
 func New(conf *config.AppConf) *App {
 	app := App{pool: newStorage(conf)}
 
+	resty := newCli(conf.Nb.Link)
+	cli := client.New(resty)
 	db := storage.New(app.pool)
-	svc := service.New(db)
+	svc := service.New(db, cli)
 	hndl := api.New(svc)
 	app.router = newRouter(hndl)
 	return &app
