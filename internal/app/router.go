@@ -1,19 +1,21 @@
 package app
 
 import (
+	"nbrates/internal/api"
+
 	swagger "github.com/arsmn/fiber-swagger/v2"
 	"github.com/gofiber/fiber/v2"
 )
 
-func newRouter() *fiber.App {
+func newRouter(h *api.Handlers) *fiber.App {
 	r := fiber.New()
 
 	r.Use("/swagger/*", swagger.HandlerDefault)
 
 	// register endpoints
-	r.Get("/", func(c *fiber.Ctx) error {
-		return c.SendString("Hello, World 👋!")
-	})
+	curr := r.Group("/currency")
+	curr.Get("/save/{date}", h.Save)
+	curr.Get("/{date}/{*code}", h.Get)
 
 	return r
 }

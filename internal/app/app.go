@@ -3,7 +3,11 @@ package app
 import (
 	"fmt"
 	"log"
+	"nbrates/internal/api"
 	"nbrates/internal/config"
+	"nbrates/internal/service"
+
+	"nbrates/internal/repository/storage"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -16,10 +20,13 @@ type App struct {
 }
 
 func New(conf *config.AppConf) *App {
-	return &App{
-		router: newRouter(),
-		pool:   newStorage(conf),
-	}
+	app := App{pool: newStorage(conf)}
+
+	db := storage.New(app.pool)
+	svc := service.New(db)
+	hndl := api.New(svc)
+	app.router = newRouter(hndl)
+	return &app
 }
 
 func (a *App) Start() error {
