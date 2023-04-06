@@ -3,8 +3,8 @@
         "name": "test",
         "host": "localhost",
         "port": "5432",
-        "userName": "kursUser",
-        "password": "kursPswd"
+        "userName": "postgres",
+        "password": "postgres"
     },
     "route": {
         "host": "localhost",

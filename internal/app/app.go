@@ -21,7 +21,10 @@ type App struct {
 }
 
 func New(conf *config.AppConf) *App {
-	app := App{pool: newStorage(conf)}
+	app := App{
+		conf: conf,
+		pool: newStorage(conf),
+	}
 
 	resty := newCli(conf.Nb.Link)
 	cli := client.New(resty)

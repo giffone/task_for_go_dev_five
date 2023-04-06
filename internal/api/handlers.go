@@ -14,8 +14,18 @@ type Handlers struct {
 	svc service.Service
 }
 
-func (h *Handlers) Save(ctx *fiber.Ctx) error {
-	return ctx.JSON(nil)
+func (h *Handlers) Save(c *fiber.Ctx) error {
+	date := c.Params("date")
+	err := h.svc.Add(c.Context(), date)
+	if err != nil {
+		return c.JSON(err)
+	}
+	ok := struct {
+		Success bool `json:"success"`
+	}{
+		Success: true,
+	}
+	return c.JSON(ok)
 }
 
 func (h *Handlers) Get(ctx *fiber.Ctx) error {

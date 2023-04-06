@@ -10,5 +10,6 @@ var confPath = "config/config.json"
 func main() {
 	conf := config.New(confPath)
 
-	app.New(conf)
+	a := app.New(conf)
+	a.Start()
 }
