@@ -48,11 +48,14 @@ func ErrHndl(c *fiber.Ctx, err error) error {
 	if errors.As(err, &e) {
 		resp.Code = e.Code
 	} else {
-		if errors.Is(err, domain.NoRates) {
+		if errors.Is(err, domain.ErrNoRates) {
 			resp.Code = fiber.StatusOK
 		}
 		if errors.Is(err, context.DeadlineExceeded) {
 			resp.Code = fiber.StatusRequestTimeout
+		}
+		if errors.Is(err, domain.ErrDateFormat) {
+			resp.Code = fiber.StatusBadRequest
 		}
 	}
 	c.Set(fiber.HeaderContentType, fiber.MIMETextPlainCharsetUTF8)

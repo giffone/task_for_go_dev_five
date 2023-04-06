@@ -41,7 +41,8 @@ func (s *service) Add(ctx context.Context, date string) error {
 	// check date format
 	t, err := time.Parse("02.01.2006", date)
 	if err != nil {
-		return err
+		log.Println(err)
+		return domain.ErrDateFormat
 	}
 	// get data from National Bank api
 	items, err := s.cli.Do(ctx, date)
@@ -51,7 +52,7 @@ func (s *service) Add(ctx context.Context, date string) error {
 	// prepare data for db
 	itemsDTO, i := dto(items, t)
 	if i == 0 {
-		return domain.NoRates
+		return domain.ErrNoRates
 	}
 	// add data to db
 	go s.storage.Add(itemsDTO)
@@ -64,7 +65,8 @@ func (s *service) Get(ctx context.Context, date, code string) ([]domain.ItemDTO,
 	// check date format
 	t, err := time.Parse("02.01.2006", date)
 	if err != nil {
-		return nil, err
+		log.Println(err)
+		return nil, domain.ErrDateFormat
 	}
 	// get data from db
 	if code != "" {
