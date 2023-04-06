@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"nbrates/internal/domain"
 	"nbrates/internal/service"
@@ -12,6 +13,8 @@ import (
 )
 
 var inserQuery = `INSERT INTO r_currency (title, code, value, a_date) VALUES ($1, $2, $3, $4);`
+var getQuery = `SELECT (title, code, value, a_date) FROM r_currency WHERE a_date::date = $1;`
+var getQuery2 = `SELECT (title, code, value, a_date) FROM r_currency WHERE a_date::date = $1 AND code = $2;`
 
 func New(pool *pgxpool.Pool) service.Storage {
 	return &storage{pool: pool}
@@ -21,18 +24,18 @@ type storage struct {
 	pool *pgxpool.Pool
 }
 
-func (s *storage) Add(date time.Time, items []domain.Item) {
-	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
+func (s *storage) Add(items []domain.ItemDTO) {
+	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Minute)
 	defer cancel()
 
 	batch := &pgx.Batch{}
 	for _, item := range items {
 		batch.Queue(
 			inserQuery,
-			item.Fullname,
 			item.Title,
-			item.Description,
-			date,
+			item.Code,
+			item.Value,
+			item.Date,
 		)
 	}
 
@@ -52,6 +55,20 @@ func (s *storage) Add(date time.Time, items []domain.Item) {
 	}
 }
 
-func (s *storage) Get() {
+func (s *storage) Get(ctx context.Context, date time.Time, code string) error {
+	if code == "" {
+		rows, err := s.pool.Query(ctx, getQuery, date.Format("02.01.2006"))
+		if err != nil {
+			return fmt.Errorf("pgx: query: %w", err)
+		}
+		s.iterateRows(rows)
+		return nil
+	}
+	return nil
+}
 
+func (s *storage) iterateRows(rows pgx.Rows) {
+	for rows.Next() {
+
+	}
 }

@@ -47,7 +47,7 @@ func newStorage(conf *config.AppConf) *pgxpool.Pool {
 }
 
 func createTable(pool *pgxpool.Pool) {
-	sqlQ := `CREATE TABLE IF NOT EXIST r_currency (
+	sqlQ := `CREATE TABLE IF NOT EXISTS r_currency (
 		id SERIAL PRIMARY KEY,
 		title VARCHAR(60),
 		code VARCHAR(3),
