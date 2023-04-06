@@ -16,8 +16,8 @@ var (
 	inserQuery = `INSERT INTO r_currency (title, code, value, a_date)
 	VALUES ($1, $2, $3, $4)
 	ON CONFLICT (code, a_date) DO UPDATE SET
-    title = EXCLUDED.title,
-    value = EXCLUDED.value;`
+	title = EXCLUDED.title,
+	value = EXCLUDED.value;`
 
 	getQuery = `SELECT title, code, value, a_date
 	FROM r_currency 
@@ -41,6 +41,13 @@ func (s *storage) Add(items []domain.ItemDTO) {
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	var i int
+	var err error
+
+	defer func(t time.Time) {
+		log.Printf("db: added %d rows in %dms\n", i, time.Since(t).Milliseconds())
+	}(time.Now())
+
 	batch := &pgx.Batch{}
 	for _, item := range items {
 		batch.Queue(
@@ -54,17 +61,18 @@ func (s *storage) Add(items []domain.ItemDTO) {
 
 	results := s.pool.SendBatch(ctx, batch)
 	defer func() {
-		if err := results.Close(); err != nil {
-			log.Printf("close batch: %s\n", err)
+		if err = results.Close(); err != nil {
+			log.Printf("db: batch close: %s\n", err)
 		}
 	}()
 
-	for i := 0; i < len(items); i++ {
-		_, err := results.Exec()
+	for i < len(items) {
+		_, err = results.Exec()
 		if err != nil {
-			log.Printf("exec batch: %s\n", err)
+			log.Printf("db: batch exec: %s\n", err)
 			break
 		}
+		i++
 	}
 }
 
