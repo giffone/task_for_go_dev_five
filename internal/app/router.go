@@ -15,7 +15,7 @@ func newRouter(h *api.Handlers) *fiber.App {
 	// register endpoints
 	curr := r.Group("/currency")
 	curr.Get("/save/:date", h.Save)
-	curr.Get("/:date/:code?", h.Get)
+	curr.Get("/get/:date/:code?", h.Get)
 
 	return r
 }

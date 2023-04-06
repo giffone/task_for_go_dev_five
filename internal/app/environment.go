@@ -58,6 +58,13 @@ func createTable(pool *pgxpool.Pool) {
 	_, err := pool.Exec(context.Background(), sqlQ)
 	if err != nil {
 		log.Printf("create table: %s", err.Error())
+		return
 	}
 
+	sqlUniq := "ALTER TABLE r_currency ADD CONSTRAINT unique_currency_date UNIQUE (code, a_date);"
+
+	_, err = pool.Exec(context.Background(), sqlUniq)
+	if err != nil {
+		log.Printf("create table: %s", err.Error())
+	}
 }
