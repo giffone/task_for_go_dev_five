@@ -4,6 +4,9 @@ build:
 run:
 	docker-compose up --build
 # docker-compose up --force-recreate --remove-orphans
+runlok:
+	go run ./cmd/nbrates/main.go
+# docker-compose up --force-recreate --remove-orphans
 
 stop:
 	docker-compose down --remove-orphans

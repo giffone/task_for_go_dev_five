@@ -7,6 +7,9 @@ import (
 	"nbrates/internal/config"
 	"nbrates/internal/repository/client"
 	"nbrates/internal/service"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"nbrates/internal/repository/storage"
 
@@ -15,16 +18,21 @@ import (
 )
 
 type App struct {
-	conf   *config.AppConf
-	router *fiber.App
-	pool   *pgxpool.Pool
+	errCh    chan error
+	signalCh chan os.Signal
+	conf     *config.AppConf
+	router   *fiber.App
+	pool     *pgxpool.Pool
 }
 
 func New(conf *config.AppConf) *App {
 	app := App{
-		conf: conf,
-		pool: newStorage(conf),
+		conf:     conf,
+		pool:     newStorage(conf),
+		errCh:    make(chan error),
+		signalCh: make(chan os.Signal, 1),
 	}
+	signal.Notify(app.signalCh, syscall.SIGINT, syscall.SIGTERM)
 
 	resty := newCli(conf.Nb.Link)
 	cli := client.New(resty)
@@ -35,9 +43,19 @@ func New(conf *config.AppConf) *App {
 	return &app
 }
 
-func (a *App) Start() error {
+func (a *App) Start() {
 	addr := fmt.Sprintf("%s:%s", a.conf.Route.Host, a.conf.Route.Port)
-	return a.router.Listen(addr)
+
+	go func() {
+		a.errCh <- a.router.Listen(addr)
+	}()
+
+	select {
+	case err := <-a.errCh:
+		log.Printf("router listener: %s\n", err.Error())
+	case signal := <-a.signalCh:
+		log.Printf("signal to stop: %v\n", signal)
+	}
 }
 
 func (a *App) Stop() {
@@ -45,5 +63,6 @@ func (a *App) Stop() {
 	if a.pool != nil {
 		a.pool.Close()
 	}
-
+	close(a.errCh)
+	close(a.signalCh)
 }

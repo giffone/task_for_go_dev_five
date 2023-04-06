@@ -1,6 +1,7 @@
 package api
 
 import (
+	"nbrates/internal/domain"
 	"nbrates/internal/service"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,14 +19,12 @@ func (h *Handlers) Save(c *fiber.Ctx) error {
 	date := c.Params("date")
 	err := h.svc.Add(c.Context(), date)
 	if err != nil {
-		return c.JSON(err)
+		return err
 	}
-	ok := struct {
-		Success bool `json:"success"`
-	}{
+	return c.JSON(domain.Response{
+		Code: fiber.StatusOK,
 		Success: true,
-	}
-	return c.JSON(ok)
+	})
 }
 
 func (h *Handlers) Get(c *fiber.Ctx) error {
@@ -33,7 +32,7 @@ func (h *Handlers) Get(c *fiber.Ctx) error {
 	code := c.Params("code")
 	itemsDTO, err := h.svc.Get(c.Context(), date, code)
 	if err != nil {
-		return c.JSON(err)
+		return err
 	}
 	return c.JSON(itemsDTO)
 }
