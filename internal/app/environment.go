@@ -30,8 +30,6 @@ func newStorage(conf *config.AppConf) *pgxpool.Pool {
 
 	log.Println("[postgres-pool] check conn")
 
-	log.Print(pg.Ping(ctx))
-
 	conn, err := pg.Acquire(ctx)
 	if err != nil {
 		log.Fatalf("[postgres-pool] check conn error: %s", err)

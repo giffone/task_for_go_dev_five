@@ -22,7 +22,7 @@ var (
 	getQuery = `SELECT title, code, value, a_date
 	FROM r_currency 
 	WHERE a_date = $1;`
-	
+
 	getQuery2 = `SELECT title, code, value, a_date
 	FROM r_currency 
 	WHERE a_date = $1 
@@ -69,7 +69,7 @@ func (s *storage) Add(items []domain.ItemDTO) {
 }
 
 func (s *storage) GetByDate(ctx context.Context, date time.Time) ([]domain.ItemDTO, error) {
-	rows, err := s.pool.Query(ctx, getQuery, date.Format("02.01.2006"))
+	rows, err := s.pool.Query(ctx, getQuery, date.Format("2006-01-02"))
 	if err != nil {
 		return nil, fmt.Errorf("pgx: query: %w", err)
 	}
