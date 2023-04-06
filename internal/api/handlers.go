@@ -31,9 +31,9 @@ func (h *Handlers) Save(c *fiber.Ctx) error {
 func (h *Handlers) Get(c *fiber.Ctx) error {
 	date := c.Params("date")
 	code := c.Params("code")
-	err := h.svc.Get(c.Context(), date, code)
+	itemsDTO, err := h.svc.Get(c.Context(), date, code)
 	if err != nil {
 		return c.JSON(err)
 	}
-	return c.JSON(nil)
+	return c.JSON(itemsDTO)
 }
