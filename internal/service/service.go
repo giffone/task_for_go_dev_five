@@ -2,12 +2,16 @@ package service
 
 import (
 	"context"
+	"errors"
+	"log"
 	"nbrates/internal/domain"
+	"strconv"
 	"time"
 )
 
 type Storage interface {
-	Add(date time.Time, items []domain.Item)
+	Add(items []domain.ItemDTO)
+	Get(ctx context.Context, date time.Time, code string) error
 }
 
 type RestyClient interface {
@@ -16,7 +20,7 @@ type RestyClient interface {
 
 type Service interface {
 	Add(ctx context.Context, date string) error
-	Get(date, code string) error
+	Get(ctx context.Context, date, code string) error
 }
 
 func New(storage Storage, cli RestyClient) Service {
@@ -45,10 +49,51 @@ func (s *service) Add(ctx context.Context, date string) error {
 		return err
 	}
 
-	go s.storage.Add(t, items)
+	itemsDTO, i := dto(items, t)
+	if i == 0 {
+		return errors.New("no rates to add")
+	}
+
+	go s.storage.Add(itemsDTO)
 	return nil
 }
 
-func (s *service) Get(date, code string) error {
+func (s *service) Get(ctx context.Context, date, code string) error {
+	ctx, cancel := context.WithTimeout(ctx, 30*time.Second)
+	defer cancel()
+
+	t, err := time.Parse("02.01.2006", date)
+	if err != nil {
+		return err
+	}
+
+	s.storage.Get(ctx, t, code)
 	return nil
+}
+
+func dto(items []domain.Item, date time.Time) ([]domain.ItemDTO, int) {
+	if len(items) == 0 {
+		return nil, 0
+	}
+	itemsDTO := make([]domain.ItemDTO, len(items))
+	var i int
+	for _, v := range items {
+		value, err := strconv.ParseFloat(v.Description, 64)
+		if err != nil {
+			log.Printf("dto: items: convert rate: %s\n", err.Error())
+			continue
+		}
+		itemsDTO[i] = domain.ItemDTO{
+			Title: v.Fullname,
+			Code:  v.Title,
+			Value: value,
+			Date:  date,
+		}
+		i++
+	}
+
+	if i != len(items) {
+		itemsDTO = itemsDTO[:i]
+	}
+	return itemsDTO, i
 }
