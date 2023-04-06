@@ -52,3 +52,20 @@ curl --request GET \
 ...
 ]
 ```
+
+**Get Request:**
+```
+curl --request GET \
+  --url http://localhost:8080/currency/get/21.12.2021/AUD
+```
+**Get Response:**
+```json
+[
+	{
+		"title": "АВСТРАЛИЙСКИЙ ДОЛЛАР",
+		"code": "AUD",
+		"value": 309.42,
+		"date": "2021-12-21T00:00:00Z"
+	}
+]
+```
