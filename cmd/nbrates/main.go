@@ -12,5 +12,4 @@ func main() {
 
 	a := app.New(conf)
 	a.Start()
-	defer a.Stop()
 }
